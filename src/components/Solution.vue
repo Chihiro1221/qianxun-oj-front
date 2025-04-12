@@ -1,7 +1,7 @@
 <template>
   <div v-if="solutionTabStatus == 'list'"
        class="solution-container border-b border-x-0 border-t-0 border-solid border-gray-200  ">
-    <a-button type="primary" status="success" @click="handleClick">
+    <a-button type="primary" status="success" @click="handleClick" class="ml-4">
       <template #icon>
         <icon-edit/>
       </template>
@@ -25,8 +25,9 @@
         <a-button @click="handleCancel">取消</a-button>
       </template>
     </a-modal>
+    <a-divider/>
     <div v-if="dataList.length != 0"
-         class="mt-4 solution-item px-4 py-4 text-gray-600 border-t border-solid border-gray-200 border-x-0 border-b-0"
+         class="mt-4 solution-item px-4 py-4 text-gray-600 border-b border-solid border-gray-200 border-x-0 border-t-0"
          v-for="item of dataList" :key="item?.id">
       <div class=" gap-6 flex items-center">
         <MyAvatar :url="item.userVO?.userAvatar" class="cursor-pointer"/>

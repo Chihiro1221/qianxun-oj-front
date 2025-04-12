@@ -1,47 +1,47 @@
 <template>
   <div id="questionsView">
-    <a-form :model="searchParams" layout="inline">
-      <a-form-item field="title" label="名称" style="min-width: 240px">
-        <a-input v-model="searchParams.title" placeholder="请输入名称" />
+    <a-form :model="searchParams" layout="inline" class="bg-white py-3 rounded shadow ">
+      <a-form-item field="title" label="名称" style="min-width: 240px" class="!mb-0 !ml-4">
+        <a-input v-model="searchParams.title" placeholder="请输入名称"/>
       </a-form-item>
-      <a-form-item field="tags" label="标签" style="min-width: 240px">
-        <a-input-tag v-model="searchParams.tags" placeholder="请输入标签" />
+      <a-form-item field="tags" label="标签" style="min-width: 240px" class="!mb-0 !ml-4">
+        <a-input-tag v-model="searchParams.tags" placeholder="请输入标签"/>
       </a-form-item>
-      <a-form-item>
+      <a-form-item class="!mb-0">
         <a-button type="primary" @click="doSubmit">提交</a-button>
       </a-form-item>
     </a-form>
-    <a-divider size="0" />
+    <a-divider size="0"/>
     <a-table
-      :ref="tableRef"
-      :loading="isLoading"
-      :columns="columns"
-      stripe
-      :data="dataList"
-      :pagination="{
+        :ref="tableRef"
+        :loading="isLoading"
+        :columns="columns"
+        stripe
+        :data="dataList"
+        :pagination="{
         showTotal: true,
         pageSize: searchParams.pageSize,
         current: searchParams.current,
         total,
       }"
-      @page-change="onPageChange"
+        @page-change="onPageChange"
     >
       <template #title="{ record }">
         <div class="text-blue-700">
-          <span class="hover:underline cursor-pointer" @click="toQuestionPage(record)">{{record.title}}</span>
+          <span class="hover:underline cursor-pointer" @click="toQuestionPage(record)">{{ record.title }}</span>
         </div>
       </template>
       <template #tags="{ record }">
         <a-space>
           <a-tag v-for="(tag, index) of record.tags" :key="index" color="green"
-            >{{ tag }}
+          >{{ tag }}
           </a-tag>
         </a-space>
       </template>
       <template #acceptedRate="{ record }">
         {{
           `${
-            record.submitNum ? (record.acceptedNum / record.submitNum).toFixed(2) : "0"
+              record.submitNum ? (record.acceptedNum / record.submitNum).toFixed(2) : "0"
           }%`
         }}
       </template>
@@ -53,7 +53,7 @@
 </template>
 
 <script setup lang="ts">
-import { onMounted, ref, watchEffect } from "vue";
+import {onMounted, ref, watchEffect} from "vue";
 import {
   Page_Question_,
   Question,
@@ -62,7 +62,7 @@ import {
 } from "../../../generated";
 import message from "@arco-design/web-vue/es/message";
 import * as querystring from "querystring";
-import { useRouter } from "vue-router";
+import {useRouter} from "vue-router";
 import moment from "moment";
 import Difficulty from "@/components/Difficulty.vue";
 
@@ -71,7 +71,7 @@ const isLoading = ref(false)
 
 const dataList = ref([]);
 const total = ref(0);
-const searchParams = ref<QuestionQueryRequest>( {
+const searchParams = ref<QuestionQueryRequest>({
   title: "",
   tags: [],
   pageSize: 8,
@@ -81,7 +81,7 @@ const searchParams = ref<QuestionQueryRequest>( {
 const loadData = async () => {
   isLoading.value = true;
   const res = await QuestionControllerService.listQuestionVoByPageUsingPost(
-    searchParams.value
+      searchParams.value
   );
   isLoading.value = false;
   if (res.code === 0) {

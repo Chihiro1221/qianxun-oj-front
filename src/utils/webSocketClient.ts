@@ -1,5 +1,6 @@
 import {useStore} from "vuex";
 import {LoginUserVO} from "../../generated";
+import {ref} from "vue";
 
 // 定义WebSocketClient类
 export class WebSocketClient {
@@ -85,7 +86,7 @@ export class WebSocketClient {
     public close(): void {
         if (this.socket) {
             this.socket.close();
-            wsClient = null;
+            wsClient.value = null;
             // 移除定时器
             if (this.heartbeatInterval) {
                 clearInterval(this.heartbeatInterval);
@@ -116,17 +117,17 @@ export class WebSocketClient {
 }
 
 // 定义useSocket函数
-let wsClient: WebSocketClient | null = null;
+export const wsClient = ref<WebSocketClient | null>(null);
 
 export const useSocket = (loginUser: LoginUserVO) => {
     if (!loginUser) {
         return null;
     }
 
-    if (wsClient) {
+    if (wsClient.value) {
         return wsClient;
     }
 
-    wsClient = new WebSocketClient(`ws://localhost:8101/api/ws/judge/${loginUser.id}`);
+    wsClient.value = new WebSocketClient(`ws://localhost:8101/api/ws/judge/${loginUser.id}`);
     return wsClient;
 };

@@ -24,7 +24,7 @@ const store = useStore();
 
 interface Props {
   size?: number,
-  url?:string
+  url?: string
 }
 
 const props = withDefaults(defineProps<Props>(), {});

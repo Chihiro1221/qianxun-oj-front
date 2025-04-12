@@ -2,7 +2,7 @@
 /* istanbul ignore file */
 /* tslint:disable */
 /* eslint-disable */
-import type {UserVO} from '../../generated222/models/UserVO';
+import type {UserVO} from '../../generated/models/UserVO';
 
 export type CommentVO = {
     commentableId?: number;

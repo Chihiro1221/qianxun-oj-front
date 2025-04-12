@@ -29,7 +29,7 @@ export default {
                 state.isAdmin = payload.userRole === 'admin';
             }
             console.log("test:" + state.loginUser)
-            useSocket(payload);
+            // useSocket(payload);
         },
         updateLoginVisible(state, payload) {
             state.loginVisible = payload;

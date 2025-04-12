@@ -31,7 +31,7 @@
               <icon-down/>
             </span>
             <template #content>
-              <a-doption>个人中心</a-doption>
+              <a-doption @click="$router.push({path:'/user/profile'})">个人中心</a-doption>
               <a-doption @click="handleLogout">退出登录</a-doption>
             </template>
           </a-dropdown>
@@ -57,7 +57,7 @@
 
 <script setup lang="ts">
 import {routes} from "../router/routes";
-import {useRoute, useRouter} from "vue-router";
+import {useRouter} from "vue-router";
 import {computed, ref} from "vue";
 import {useStore} from "vuex";
 import checkAccess from "@/access/checkAccess";
@@ -66,7 +66,7 @@ import LoginCard from "@/components/LoginCard.vue";
 import {UserControllerService} from "../../generated";
 import message from "@arco-design/web-vue/es/message";
 import RegisterCard from "@/components/RegisterCard.vue";
-import {useSocket} from "@/utils/webSocketClient";
+import {wsClient} from "@/utils/webSocketClient";
 import MyAvatar from "@/components/MyAvatar.vue";
 
 
@@ -103,10 +103,10 @@ router.afterEach((to, from, failure) => {
  */
 
 const handleLogout = async () => {
-  const wsClient = useSocket(store.state.user.loginUser);
+  // const wsClient = useSocket(store.state.user.loginUser);
   await UserControllerService.userLogoutUsingPost();
   await store.commit("user/updateUser", null);
-  wsClient.close();
+  wsClient.value?.close();
   router.push({
     path: "/"
   })

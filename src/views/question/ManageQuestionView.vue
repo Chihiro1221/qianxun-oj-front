@@ -1,28 +1,28 @@
 <template>
   <div id="manageQuestionView">
-    <a-form :model="searchParams" layout="inline" class="mb-4">
-      <a-form-item field="title" label="名称" style="min-width: 240px">
-        <a-input v-model="searchParams.title" placeholder="请输入名称" />
+    <a-form :model="searchParams" layout="inline" class="bg-white py-3 rounded shadow mb-5">
+      <a-form-item field="title" label="名称" style="min-width: 240px" class="!mb-0 !ml-4">
+        <a-input v-model="searchParams.title" placeholder="请输入名称"/>
       </a-form-item>
-      <a-form-item field="tags" label="标签" style="min-width: 240px">
-        <a-input-tag v-model="searchParams.tags" placeholder="请输入标签" />
+      <a-form-item field="tags" label="标签" style="min-width: 240px" class="!mb-0 !ml-4">
+        <a-input-tag v-model="searchParams.tags" placeholder="请输入标签"/>
       </a-form-item>
-      <a-form-item>
+      <a-form-item class="!mb-0">
         <a-button type="primary" @click="doSubmit">提交</a-button>
       </a-form-item>
     </a-form>
     <a-table
-      :ref="tableRef"
-      :columns="columns"
-      stripe
-      :data="dataList"
-      :pagination="{
+        :ref="tableRef"
+        :columns="columns"
+        stripe
+        :data="dataList"
+        :pagination="{
         showTotal: true,
         pageSize: searchParams.pageSize,
         current: searchParams.current,
         total,
       }"
-      @page-change="onPageChange"
+        @page-change="onPageChange"
     >
       <template #tags="{ record }">
         <a-space>
@@ -35,10 +35,10 @@
         <Difficulty :difficulty="record.difficulty"/>
       </template>
       <template #user="{ record }">
-        <div>{{record.userVO.userName}}</div>
+        <div>{{ record.userVO.userName }}</div>
       </template>
       <template #createTime="{record}">
-        {{dayjs(record.createTime).format("YYYY-MM-DD HH:MM:ss")}}
+        {{ dayjs(record.createTime).format("YYYY-MM-DD HH:MM:ss") }}
       </template>
       <template #optional="{ record }">
         <a-space>
@@ -51,7 +51,7 @@
 </template>
 
 <script setup lang="ts">
-import { onMounted, ref, watchEffect } from "vue";
+import {onMounted, ref, watchEffect} from "vue";
 import {
   Page_Question_,
   Question,
@@ -59,7 +59,7 @@ import {
 } from "../../../generated";
 import message from "@arco-design/web-vue/es/message";
 import * as querystring from "querystring";
-import { useRouter } from "vue-router";
+import {useRouter} from "vue-router";
 import dayjs from "dayjs";
 import Difficulty from "@/components/Difficulty.vue";
 
@@ -76,7 +76,7 @@ const searchParams = ref({
 
 const loadData = async () => {
   const res = await QuestionControllerService.listQuestionVoByPageUsingPost(
-    searchParams.value
+      searchParams.value
   );
   if (res.code === 0) {
     dataList.value = res.data.records;
@@ -117,7 +117,7 @@ const columns = [
   {
     title: "id",
     dataIndex: "id",
-    width:200
+    width: 200
   },
   {
     title: "标题",
@@ -126,7 +126,7 @@ const columns = [
   {
     title: "标签",
     slotName: "tags",
-    width:300
+    width: 300
   },
   {
     title: "提交数",
@@ -187,7 +187,7 @@ const doUpdate = (question: Question) => {
 
 <style scoped>
 #manageQuestionView {
-    max-width: 1280px;
-    margin: 0 auto;
+  max-width: 1280px;
+  margin: 0 auto;
 }
 </style>

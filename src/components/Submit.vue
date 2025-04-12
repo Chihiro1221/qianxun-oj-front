@@ -1,6 +1,6 @@
 <template>
   <div v-show="submitTabStatus == 'list'"
-       class="solution-container border-b border-x-0 border-t-0 border-solid border-gray-200  ">
+       class="solution-container border-b border-x-0 border-t-0 border-solid border-gray-200  pb-4">
     <a-table
         :columns="columns"
         :data="dataList"
@@ -96,7 +96,7 @@
       </div>
     </a-card>
     <a-divider/>
-    <CodeReader :value="currentSubmit?.code" :language="currentSubmit?.language" readonly/>
+    <CodeReader :value="currentSubmit?.code" :language="currentSubmit?.language" readonly class="!h-auto"/>
   </div>
 </template>
 

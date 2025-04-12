@@ -59,14 +59,18 @@ watch(
     }
 );
 
-// watch(
-//     () => props.value,
-//     (newValue) => {
-//       if (codeEditor.value) {
-//         toRaw(codeEditor.value).setValue(newValue);
-//       }
-//     }
-// );
+watch(
+    () => props.value,
+    (newValue) => {
+      if (codeEditor.value) {
+        // 当外部值变化且与当前编辑器内容不同时更新
+        if (newValue !== toRaw(codeEditor.value).getValue()) {
+          toRaw(codeEditor.value).setValue(newValue);
+        }
+        // toRaw(codeEditor.value).setValue(newValue);
+      }
+    }
+);
 
 onMounted(() => {
   if (!codeEditorRef.value) {

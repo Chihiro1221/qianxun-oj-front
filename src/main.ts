@@ -1,4 +1,4 @@
-import {createApp} from 'vue';
+import {computed, createApp, watch} from 'vue';
 import App from './App.vue';
 import '@/assets/tailwind.css';
 import ArcoVue from '@arco-design/web-vue';
@@ -21,5 +21,14 @@ useBytemdPlugin()
 // 额外引入图标库
 import ArcoVueIcon from '@arco-design/web-vue/es/icon';
 import {useBytemdPlugin} from "@/plugins/bytemd";
+import {useSocket, wsClient} from "@/utils/webSocketClient";
+
+const loginUser = computed(() => store.state.user.loginUser);
+watch(() => loginUser.value, () => {
+    if (loginUser.value != null) {
+        useSocket(loginUser.value);
+    }
+})
+
 
 createApp(App).use(ArcoVue).use(ArcoVueIcon).use(store).use(router).mount('#app');

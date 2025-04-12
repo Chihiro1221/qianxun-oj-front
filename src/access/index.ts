@@ -12,6 +12,14 @@ router.beforeEach(async (to, from, next) => {
         await store.dispatch("user/getLoginUser");
         loginUser = store.state.user.loginUser;
     }
+
+    const needAccess = (to.meta?.access as string);
+    // 如果已经登陆了，但是权限不足，那么跳转到无权限页面
+    if (needAccess && !checkAccess(loginUser, needAccess)) {
+        next("/noAuth");
+        return;
+    }
+
     next();
 
 })
