@@ -100,11 +100,11 @@
 </template>
 
 <script setup lang="ts">
-import {defineProps, onMounted, reactive, ref, withDefaults} from 'vue';
+import {computed, defineProps, onMounted, reactive, ref, watch, withDefaults} from 'vue';
 import message from '@arco-design/web-vue/es/message';
 import CodeEditor from '@/components/CodeEditor.vue';
 import MdViewer from '@/components/MdViewer.vue';
-import {useSocket} from '@/utils/webSocketClient';
+import {useSocket, WebSocketClient} from '@/utils/webSocketClient';
 import {QuestionControllerService, QuestionSubmitAddRequest, QuestionVO} from '../../../generated';
 import {useStore} from 'vuex';
 import {checkLogin} from '@/utils/checkLogin';
@@ -129,39 +129,40 @@ const debugForm = reactive({
   excepted_stdout: '',
 });
 
-let wsClient: any;
-const loginUser = store.state.user.loginUser;
-if (loginUser) {
-  wsClient = useSocket(loginUser);
-  wsClient.onMessageReceived = function (message: any) {
-    console.log('自定义消息处理:', message);
-    if (message.activity == 'heartbeat') return;
-    if (['Accepted', 'Finished'].includes(message.status)) {
-      form.value.stdin = message.stdin;
-      debugForm.stdout = message.stdout?.endsWith('\n') ? message.stdout.slice(0, -1) : message.stdout;
-      debugForm.time = new String(parseFloat(message.time) * 1000).toString();
-      // isTimeShow.value = true;
-      // finishedStatus.value = message.status;
-      // return;
-    }
-    if (message.compile_output && message.compile_output.length !== 0) {
-      menuStatus.value = 'debug';
-      debugForm.stdout = message.compile_output;
-    }
-    if (message.status === 'Wrong Answer') {
-      menuStatus.value = 'debug';
-      debugForm.stdout = message.user_stdout;
-    }
-    if (['Pending', 'Running'].includes(message.status)) {
-      isDisabled.value = true;
-    } else {
-      isDisabled.value = false;
-    }
+let wsClient = ref<any>(null);
+const loginUser = computed(() => store.state.user.loginUser);
+watch(() => loginUser.value, () => {
+  if (loginUser.value != null) {
+    wsClient.value = useSocket(loginUser.value);
+    wsClient.value.onMessageReceived = function (message: any) {
+      console.log('自定义消息处理:', message);
+      if (message.activity == 'heartbeat') return;
+      if (['Accepted', 'Finished'].includes(message.status)) {
+        form.value.stdin = message.stdin;
+        debugForm.stdout = message.stdout?.endsWith('\n') ? message.stdout.slice(0, -1) : message.stdout;
+        debugForm.time = new String(parseFloat(message.time) * 1000).toString();
+        // isTimeShow.value = true;
+        // finishedStatus.value = message.status;
+        // return;
+      }
+      if (message.compile_output && message.compile_output.length !== 0) {
+        menuStatus.value = 'debug';
+        debugForm.stdout = message.compile_output;
+      }
+      if (message.status === 'Wrong Answer') {
+        menuStatus.value = 'debug';
+        debugForm.stdout = message.user_stdout;
+      }
+      if (['Pending', 'Running'].includes(message.status)) {
+        isDisabled.value = true;
+      } else {
+        isDisabled.value = false;
+      }
 
-    finishedStatus.value = message.status;
-  };
-}
-
+      finishedStatus.value = message.status;
+    };
+  }
+})
 
 /**
  * 禁用按钮
@@ -215,11 +216,14 @@ const doDebug = async () => {
   if (!question.value?.id) {
     return;
   }
+  // wsClient = useSocket(loginUser.value);
   isDisabled.value = true;
   menuStatus.value = 'debug';
   debugForm.time = '';
   finishedStatus.value = 'Uploading';
-  wsClient.sendMessage({...form.value, question_id: question.value.id, activity: 'problem_run_code'});
+  console.log("test:")
+  console.log(wsClient.value)
+  wsClient.value?.sendMessage({...form.value, question_id: question.value.id, activity: 'problem_run_code'});
 };
 
 /**
@@ -230,10 +234,11 @@ const doSubmit = async () => {
   if (!question.value?.id) {
     return;
   }
+  // wsClient = useSocket(loginUser);
   isDisabled.value = true;
   menuStatus.value = 'submit';
   finishedStatus.value = 'Uploading';
-  wsClient.sendMessage({...form.value, question_id: question.value.id, activity: 'problem_submit_code'});
+  wsClient.value?.sendMessage({...form.value, question_id: question.value.id, activity: 'problem_submit_code'});
 };
 
 /**

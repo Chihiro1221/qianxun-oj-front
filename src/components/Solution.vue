@@ -25,7 +25,8 @@
         <a-button @click="handleCancel">取消</a-button>
       </template>
     </a-modal>
-    <div class="mt-4 solution-item px-4 py-4 text-gray-600 border-t border-solid border-gray-200 border-x-0 border-b-0"
+    <div v-if="dataList.length != 0"
+         class="mt-4 solution-item px-4 py-4 text-gray-600 border-t border-solid border-gray-200 border-x-0 border-b-0"
          v-for="item of dataList" :key="item?.id">
       <div class=" gap-6 flex items-center">
         <MyAvatar :url="item.userVO?.userAvatar" class="cursor-pointer"/>
@@ -50,6 +51,7 @@
         <span> 创建于 {{ dayjs(item.createTime).format("YYYY-MM-DD HH:mm") }}</span>
       </div>
     </div>
+    <a-empty v-else description="暂无题解，快来发表你的第一篇吧！"/>
   </div>
   <div class="solution-show" v-else>
     <a-card :header-style="{ 'background-color': '#f2f3f5' }">
@@ -97,7 +99,7 @@
     <a-card class="mt-4 !text-gray-900">
       <div class="text-lg">{{ commentTotal }} 条评论</div>
       <div class="flex items-center gap-6 mt-4">
-        <MyAvatar :url="store.state.user?.loginUser.userAvatar"/>
+        <MyAvatar :url="store.state.user?.loginUser?.userAvatar"/>
         <a-textarea placeholder="在这里写评论..." v-model="commentContent" class="min-h-[60px]"/>
       </div>
       <div class="flex justify-end mt-2">
@@ -116,18 +118,19 @@
           <MyAvatar :url="comment.userVO?.userAvatar"/>
         </template>
         <template #author>
-          <div>
+          <div class="flex items-center">
             <span class="sys-text">{{ comment.userVO?.userName }}</span>
             <span class="ml-2 text-[13px] text-[#999]">{{ dayjs(comment.createTime).fromNow() }}</span>
             <span class="action ml-6 text-[13px] text-[#999] cursor-pointer hover:text-blue-500 hover:underline"
                   @click="comment.isShowReplyBtn = !comment.isShowReplyBtn">{{
                 comment.isShowReplyBtn ? "取消" : "回复"
               }} </span>
+            <a-popconfirm content="确认删除这条评论吗？" @ok="handleDeleteComment(comment.id!)">
+              <icon-delete v-if="comment.userId == store.state.user?.loginUser?.id || store.state.user.isAdmin"
+                           size="18"
+                           class="hover:text-blue-500 cursor-pointer ml-4"/>
+            </a-popconfirm>
           </div>
-        </template>
-        <template #actions>
-          <icon-delete v-if="comment.userId == store.state.user?.loginUser.userName" size="18"
-                       class="hover:text-blue-500 cursor-pointer"/>
         </template>
         <!--回复框-->
         <!--           enter-active-class="animate__animated animate__zoomInLeft"
@@ -168,11 +171,10 @@
                     @click="subComment.isShowReplyBtn = !subComment.isShowReplyBtn">{{
                   subComment.isShowReplyBtn ? "取消" : "回复"
                 }} </span>
+              <icon-delete v-if="subComment.userId == store.state.user?.loginUser?.id || store.state.user.isAdmin"
+                           size="18"
+                           class="hover:text-blue-500 cursor-pointer ml-4"/>
             </div>
-          </template>
-          <template #actions>
-            <icon-delete v-if="subComment.userId == store.state.user?.loginUser.userName" size="18"
-                         class="hover:text-blue-500 cursor-pointer"/>
           </template>
           <!--回复框-->
           <Transition name="fade">
@@ -218,7 +220,7 @@ interface Props {
 
 const props = withDefaults(defineProps<Props>(), {});
 const solutionTabStatus = ref('list');
-const dataList = ref<SolutionVO[]>();
+const dataList = ref<SolutionVO[]>([]);
 const total = ref(0);
 const currentSolution = ref<SolutionVO>()
 const isLiked = ref<boolean>(false)
@@ -265,6 +267,16 @@ const handleOk = async () => {
 };
 const handleCancel = () => {
   visible.value = false;
+}
+
+const handleDeleteComment = async (id: number) => {
+  const res = await CommentControllerService.deleteCommentUsingPost({id});
+  if (res.code === 0) {
+    message.success("删除成功");
+    await loadCommentRecords()
+  } else {
+    message.error('删除评论失败，' + res.message);
+  }
 }
 
 /**
@@ -364,8 +376,8 @@ const loadCommentRecords = async () => {
 const handleClickItem = async (id: number) => {
   // 更新浏览量
   await SolutionControllerService.updateViewCountUsingPost({id});
-  await loadIsLiked(id);
-  await loadIsFavorite(id)
+  store.state.user?.loginUser && await loadIsLiked(id);
+  store.state.user?.loginUser && await loadIsFavorite(id)
   await loadItemData(id);
   solutionTabStatus.value = 'item';
 }

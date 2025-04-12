@@ -24,7 +24,7 @@
     </a-col>
     <a-col flex="250px">
       <div class="text-white cursor-pointer text-[#c8ccd3] hover:text-white ">
-        <div v-if="store.state.user?.loginUser?.userName" class="flex items-center">
+        <div v-if="store.state.user?.loginUser" class="flex items-center">
           <a-dropdown :popup-max-height="false">
             <span>
               {{ store.state.user?.loginUser?.userName }}
@@ -102,13 +102,13 @@ router.afterEach((to, from, failure) => {
  * 登录框显示
  */
 
-const handleLogout = () => {
-  UserControllerService.userLogoutUsingPost();
+const handleLogout = async () => {
   const wsClient = useSocket(store.state.user.loginUser);
+  await UserControllerService.userLogoutUsingPost();
+  await store.commit("user/updateUser", null);
   wsClient.close();
-  store.commit("user/updateUser", null);
   router.push({
-    path:"/"
+    path: "/"
   })
   message.success("已退出！")
 };

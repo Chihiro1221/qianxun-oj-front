@@ -8,7 +8,8 @@ export default {
     namespaced: true,
     state: () => ({
         loginUser: null,
-        loginVisible: false
+        loginVisible: false,
+        isAdmin: false
     }),
     actions: {
         async getLoginUser({commit, state}, payload) {
@@ -24,6 +25,10 @@ export default {
     mutations: {
         updateUser(state, payload) {
             state.loginUser = payload;
+            if (payload != null) {
+                state.isAdmin = payload.userRole === 'admin';
+            }
+            console.log("test:" + state.loginUser)
             useSocket(payload);
         },
         updateLoginVisible(state, payload) {
