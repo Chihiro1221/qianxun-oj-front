@@ -52,7 +52,7 @@
         <span> 创建于 {{ dayjs(item.createTime).format("YYYY-MM-DD HH:mm") }}</span>
       </div>
     </div>
-    <a-empty v-else description="暂无题解，快来发表你的第一篇吧！"/>
+    <a-empty v-else description="暂无题解，快来发表第一篇吧！"/>
   </div>
   <div class="solution-show" v-else>
     <a-card :header-style="{ 'background-color': '#f2f3f5' }">

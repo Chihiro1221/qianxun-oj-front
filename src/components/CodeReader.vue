@@ -3,7 +3,7 @@
       class="mt-2"
       id="code-reader"
       ref="codeReaderRef"
-      style="min-height: 400px; height: 60vh; border:1px solid #eee"
+      style="min-height: 600px; height: 60vh; border:1px solid #eee"
   />
   <!--  <a-button @click="fillValue">填充值</a-button>-->
 </template>

@@ -247,7 +247,7 @@ const doSubmit = async () => {
   wsClient.value?.sendMessage({...form.value, question_id: question.value.id, activity: 'problem_submit_code'});
 };
 
-const handleBeforeUnload = (event) => {
+const handleBeforeUnload = () => {
   // 执行清理工作
   const settings = {language: form.value.language};
   localStorage.setItem(`${question.value?.id}-settings`, JSON.stringify(settings))
@@ -273,6 +273,7 @@ onMounted(async () => {
 });
 onUnmounted(() => {
   window.removeEventListener('beforeunload', handleBeforeUnload);
+  handleBeforeUnload()
 });
 
 
