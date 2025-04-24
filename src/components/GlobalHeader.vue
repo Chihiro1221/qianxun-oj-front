@@ -37,7 +37,7 @@
           </a-dropdown>
 
           <div class="avatar ml-2">
-            <MyAvatar :url="store.state.user?.userAvatar"/>
+            <MyAvatar :url="store.state.user?.loginUser?.userAvatar"/>
           </div>
         </div>
         <div v-else @click='store.commit("user/updateLoginVisible", true)'>登录/注册</div>

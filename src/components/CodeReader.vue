@@ -3,7 +3,7 @@
       class="mt-2"
       id="code-reader"
       ref="codeReaderRef"
-      style="min-height: 600px; height: 60vh; border:1px solid #eee"
+      style="border:1px solid #eee"
   />
   <!--  <a-button @click="fillValue">填充值</a-button>-->
 </template>
@@ -37,14 +37,6 @@ const props = withDefaults(defineProps<Props>(), {
 const codeReaderRef = ref();
 const codeEditor = ref();
 
-// const fillValue = () => {
-//   if (!codeEditor.value) {
-//     return;
-//   }
-//   // 改变值
-//   toRaw(codeEditor.value).setValue("新的值");
-// };
-
 watch(
     () => props.language,
     () => {
@@ -56,12 +48,32 @@ watch(
       }
     }
 );
+/**
+ * 编辑器最小高度
+ */
+const MIN_HEIGHT = 400;
+
+const updateEditorHeight = () => {
+  console.log("tests1222222222222222222222")
+  // 获取内容高度（像素）
+  const contentHeight = codeEditor.value.getContentHeight();
+  console.log(contentHeight)
+  // 计算目标高度（不小于 MIN_HEIGHT）
+  const targetHeight = Math.max(contentHeight, MIN_HEIGHT);
+
+  // 设置容器高度
+  codeReaderRef.value!.style.height = `${targetHeight}px`;
+  console.log("adjklfsjklfjadslfk" + `${targetHeight}px`)
+  // 通知编辑器更新布局
+  // codeEditor.value.layout();
+};
 
 watch(
     () => props.value,
     (newValue) => {
       if (codeEditor.value) {
         toRaw(codeEditor.value).setValue(newValue);
+        updateEditorHeight()
       }
     }
 );
@@ -81,16 +93,20 @@ onMounted(() => {
     },
     readOnly: props.readonly,
     theme: "vs-light",
-    scrollBeyondLastLine: false
+    scrollBeyondLastLine: false,
+    scrollbar: {
+      alwaysConsumeMouseWheel: false
+    }
     // lineNumbers: "off",
     // roundedSelection: false,
     // scrollBeyondLastLine: false,
   });
 
   // 编辑 监听内容变化
-  codeEditor.value.onDidChangeModelContent(() => {
-    props.handleChange(toRaw(codeEditor.value).getValue());
-  });
+  // codeEditor.value.onDidChangeModelContent(() => {
+  //   props.handleChange(toRaw(codeEditor.value).getValue());
+  // });
+  // updateEditorHeight()
 });
 </script>
 

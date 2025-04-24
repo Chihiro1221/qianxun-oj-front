@@ -96,8 +96,9 @@
       </div>
     </a-card>
     <a-divider/>
-    <CodeReader :value="currentSubmit?.code" :language="currentSubmit?.language" readonly class="!h-auto"/>
+    <CodeReader :value="currentSubmit?.code" :language="currentSubmit?.language" readonly/>
   </div>
+
 </template>
 
 <script setup lang="ts">
@@ -169,10 +170,12 @@ const submitTabStatus = ref('list');
  */
 const isTableLoading = ref(false);
 
+
 /**
  * 获取提交记录数据
  */
 const loadSubmitRecords = async () => {
+  isTableLoading.value = true;
   const res = await QuestionControllerService.listQuestionSubmitByPageUsingPost({
     ...searchParams.value,
     userId: store.state.user?.loginUser?.id,
@@ -186,6 +189,7 @@ const loadSubmitRecords = async () => {
   } else {
     message.error('加载失败，' + res.message);
   }
+  isTableLoading.value = false;
 };
 
 const showSubmitItem = async (submitId: number) => {

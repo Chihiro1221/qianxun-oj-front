@@ -26,33 +26,35 @@
       </template>
     </a-modal>
     <a-divider/>
-    <div v-if="dataList.length != 0"
-         class="mt-4 solution-item px-4 py-4 text-gray-600 border-b border-solid border-gray-200 border-x-0 border-t-0"
-         v-for="item of dataList" :key="item?.id">
-      <div class=" gap-6 flex items-center">
-        <MyAvatar :url="item.userVO?.userAvatar" class="cursor-pointer"/>
-        <div class="flex flex-col items-center">
-          <span class="text-lg">{{ item.upvoteCount }}</span>
-          <span class="text-xs">支持</span>
+    <a-spin :loading="listLoading" tip="题解加载中..." class="w-full">
+      <div v-if="dataList.length != 0"
+           class="mt-4 solution-item px-4 py-4 text-gray-600 border-b border-solid border-gray-200 border-x-0 border-t-0"
+           v-for="item of dataList" :key="item?.id">
+        <div class=" gap-6 flex items-center">
+          <MyAvatar :url="item.userVO?.userAvatar" class="cursor-pointer"/>
+          <div class="flex flex-col items-center">
+            <span class="text-lg">{{ item.upvoteCount }}</span>
+            <span class="text-xs">支持</span>
+          </div>
+          <div class="flex flex-col items-center">
+            <span class="text-lg">{{ item.viewCount }}</span>
+            <span class="text-xs">浏览</span>
+          </div>
+          <div class="text-xl sys-text"
+               @click="handleClickItem(item.id!)">
+            {{ item.title }}
+          </div>
         </div>
-        <div class="flex flex-col items-center">
-          <span class="text-lg">{{ item.viewCount }}</span>
-          <span class="text-xs">浏览</span>
-        </div>
-        <div class="text-xl sys-text"
-             @click="handleClickItem(item.id!)">
-          {{ item.title }}
-        </div>
-      </div>
-      <div class="flex justify-end items-center">
+        <div class="flex justify-end items-center">
         <span
             class="sys-text">{{
             item.userVO?.userName
           }}&nbsp;</span>
-        <span> 创建于 {{ dayjs(item.createTime).format("YYYY-MM-DD HH:mm") }}</span>
+          <span> 创建于 {{ dayjs(item.createTime).format("YYYY-MM-DD HH:mm") }}</span>
+        </div>
       </div>
-    </div>
-    <a-empty v-else description="暂无题解，快来发表第一篇吧！"/>
+      <a-empty v-else description="暂无题解，快来发表第一篇吧！"/>
+    </a-spin>
   </div>
   <div class="solution-show" v-else>
     <a-card :header-style="{ 'background-color': '#f2f3f5' }">
@@ -172,9 +174,11 @@
                     @click="subComment.isShowReplyBtn = !subComment.isShowReplyBtn">{{
                   subComment.isShowReplyBtn ? "取消" : "回复"
                 }} </span>
-              <icon-delete v-if="subComment.userId == store.state.user?.loginUser?.id || store.state.user.isAdmin"
-                           size="18"
-                           class="hover:text-blue-500 cursor-pointer ml-4"/>
+              <a-popconfirm content="确认删除这条评论吗？" @ok="handleDeleteComment(subComment.id!)">
+                <icon-delete v-if="subComment.userId == store.state.user?.loginUser?.id || store.state.user.isAdmin"
+                             size="18"
+                             class="hover:text-blue-500 cursor-pointer ml-4"/>
+              </a-popconfirm>
             </div>
           </template>
           <!--回复框-->
@@ -210,6 +214,8 @@ import MdViewer from "@/components/MdViewer.vue";
 import MdEditor from "@/components/MdEditor.vue";
 import {CommentControllerService} from "../../generated/services/CommentControllerService";
 import {useStore} from "vuex";
+import {checkLogin} from "@/utils/checkLogin";
+import {list} from "postcss";
 
 /**
  * 定义组件属性类型
@@ -231,6 +237,7 @@ const commentList = ref<CommentVO[]>()
 const commentTotal = ref(0);
 const store = useStore();
 const commentContent = ref("");
+const listLoading = ref(false)
 
 const isLoading = ref(false)
 const form = reactive({
@@ -248,6 +255,7 @@ const onContentChange = (value: string) => {
 };
 
 const handleClick = () => {
+  if (!checkLogin(store)) return;
   visible.value = true;
 };
 /**
@@ -259,12 +267,13 @@ const handleOk = async () => {
   const res = await SolutionControllerService.addSolutionUsingPost(form);
   if (res.code !== 0) {
     message.error('添加失败，' + res.message);
+  } else {
+    form.title = "";
+    form.content = "";
+    visible.value = false;
+    loadSolutionRecords();
   }
-  visible.value = false;
   isLoading.value = false;
-  form.title = "";
-  form.content = "";
-  loadSolutionRecords();
 };
 const handleCancel = () => {
   visible.value = false;
@@ -319,6 +328,7 @@ watch(
     () => props.tabValue,
     () => {
       if (props.tabValue === 'solution-records') {
+        dataList.value = []
         loadSolutionRecords();
       }
     }
@@ -328,6 +338,7 @@ watch(
  * 获取题解数据
  */
 const loadSolutionRecords = async () => {
+  listLoading.value = true;
   const res = await SolutionControllerService.listSolutionVoByPageUsingPost({
     ...searchParams.value,
     questionId: props.questionId,
@@ -341,6 +352,7 @@ const loadSolutionRecords = async () => {
   } else {
     message.error('加载失败，' + res.message);
   }
+  listLoading.value = false;
 };
 
 /**
