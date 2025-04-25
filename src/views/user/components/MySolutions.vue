@@ -15,8 +15,11 @@
       @page-change="onPageChange"
   >
     <template #title="{record}">
-      <a-typography-paragraph ellipsis>
-        <span @click="$router.push({})">{{ record.title }}</span>
+      <a-typography-paragraph ellipsis class="sys-text"
+                              @click="$router.push({path:`/view/question/${record.questionId}`,query:{solutionId:record.id}})">
+        <span>{{
+            record.title
+          }}</span>
       </a-typography-paragraph>
     </template>
     <template #user="{ record }">
@@ -75,7 +78,7 @@
 <script lang="ts" setup>
 import dayjs from "dayjs";
 import MdEditor from "@/components/MdEditor.vue";
-import {ref, watchEffect} from "vue";
+import {defineProps, ref, watch, watchEffect, withDefaults} from "vue";
 import {SolutionControllerService, SolutionVO} from "../../../../generated/question";
 import message from "@arco-design/web-vue/es/message";
 
@@ -125,6 +128,12 @@ const searchParams = ref({
   current: 1,
 });
 
+interface Props {
+  currentStatus: string
+}
+
+const props = withDefaults(defineProps<Props>(), {});
+
 /**
  * 加载数据
  */
@@ -141,6 +150,19 @@ const loadData = async () => {
   }
   loading.value = false;
 };
+
+watch(
+    () => props.currentStatus,
+    () => {
+      if (props.currentStatus === 'current') {
+        loadData();
+      }
+    },
+    {
+      immediate: true
+    }
+);
+
 
 /**
  * 更新题解
@@ -161,6 +183,7 @@ const onPageChange = (page: number) => {
     ...searchParams.value,
     current: page,
   };
+  loadData()
 };
 
 const onContentChange = (value: string) => {
@@ -203,9 +226,10 @@ const handleSubmit = async () => {
 /**
  * 监听 searchParams 变量，改变时触发页面的重新加载
  */
-watchEffect(() => {
-  loadData();
-});
+// watchEffect(() => {
+//   loadData();
+// });
+
 </script>
 
 <style scoped></style>

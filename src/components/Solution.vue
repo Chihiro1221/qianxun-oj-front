@@ -237,6 +237,7 @@ import {
 interface Props {
   questionId: number | undefined;
   tabValue?: string;
+  solutionId?: number
 }
 
 const props = withDefaults(defineProps<Props>(), {});
@@ -262,6 +263,10 @@ const form = reactive({
 
 watch(() => props.questionId, (newValue) => {
   form.questionId = newValue;
+});
+
+watch(() => props.solutionId, (newValue) => {
+  handleClickItem(props.solutionId!)
 });
 
 const onContentChange = (value: string) => {

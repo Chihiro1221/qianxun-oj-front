@@ -3,7 +3,8 @@
     <div class="relative">
       <div id="q-con" class="shadow rounded overflow-hidden bg-white">
         <div class="text-2xl px-4 py-6 text-[#4e5969]">{{ question?.title }}</div>
-        <a-tabs default-active-key="question" v-model="tabValue" size="large" @change="onTabChange" type="card"
+        <a-tabs default-active-key="question" v-model:active-key="tabValue" size="large" @change="onTabChange"
+                type="card"
                 style="background: white">
           <a-tab-pane key="question">
             <template #title>
@@ -112,7 +113,7 @@
               <icon-code/>
               题解
             </template>
-            <Solution :question-id="question?.id" :tab-value="tabValue"/>
+            <Solution :question-id="question?.id" :tab-value="tabValue" :solution-id="currentSolutionId"/>
           </a-tab-pane>
           <a-tab-pane key="ai">
             <template #title>
@@ -142,6 +143,7 @@ import Submit from '@/components/Submit.vue';
 import Question from '@/components/Question.vue';
 import Chat from '@/components/Chat.vue';
 import {QuestionControllerService, QuestionSubmitRequest, QuestionVO} from "../../../generated/question";
+import {useRoute} from "vue-router";
 
 interface Props {
   id: string;
@@ -209,6 +211,10 @@ const menuStatus = ref('code');
 const finishedStatus = ref('');
 const question = ref<QuestionVO>();
 const loading = ref(false)
+/**
+ * 某个具体的题解id
+ */
+const currentSolutionId = ref()
 const onTabChange = (key: string) => {
   tabValue.value = key;
 };
@@ -283,6 +289,8 @@ const handleBeforeUnload = () => {
   localStorage.setItem(`${question.value?.id}-${form.value.language}`, form.value.source_code!);
 };
 
+const route = useRoute()
+
 /**
  * 页面加载时，请求数据
  */
@@ -298,6 +306,12 @@ onMounted(async () => {
   const data = localStorage.getItem(`${question.value?.id}-${form.value.language}`);
   if (data) {
     form.value.source_code = data;
+  }
+
+  const {solutionId} = route.query
+  if (solutionId) {
+    tabValue.value = 'solution-records'
+    currentSolutionId.value = solutionId
   }
 });
 onUnmounted(() => {

@@ -21,12 +21,12 @@
       <a-col class="ml-6" flex="20">
         <div class="space-con">
           <div class="bg-white p-4 rounded shadow">
-            <a-tabs default-active-key="1">
-              <a-tab-pane key="1" title="我的题解">
-                <MySolutions/>
+            <a-tabs default-active-key="current" v-model="currentStatus" @change="onTabChange">
+              <a-tab-pane key="current" title="我的题解">
+                <MySolutions :current-status="currentStatus"/>
               </a-tab-pane>
-              <a-tab-pane key="2" title="我的收藏">
-                我的收藏
+              <a-tab-pane key="favorite" title="我的收藏">
+                <MyFavoriteSolutions :current-status="currentStatus"/>
               </a-tab-pane>
             </a-tabs>
           </div>
@@ -39,10 +39,15 @@
 
 <script setup lang="ts">
 import {useStore} from "vuex";
-import {computed} from "vue";
+import {computed, ref} from "vue";
 import MySolutions from "@/views/user/components/MySolutions.vue";
+import MyFavoriteSolutions from "@/views/user/components/MyFavoriteSolutions.vue";
 
 const store = useStore()
+const currentStatus = ref('current')
 const loginUser = computed(() => store.state.user?.loginUser)
 
+const onTabChange = (key: string) => {
+  currentStatus.value = key;
+};
 </script>

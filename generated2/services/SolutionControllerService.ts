@@ -2,18 +2,17 @@
 /* istanbul ignore file */
 /* tslint:disable */
 /* eslint-disable */
-import type {BaseResponseBoolean} from '../models/BaseResponseBoolean';
-import type {BaseResponseLong} from '../models/BaseResponseLong';
-import type {BaseResponsePageSolutionVO} from '../models/BaseResponsePageSolutionVO';
-import type {BaseResponseSolutionVO} from '../models/BaseResponseSolutionVO';
-import type {DeleteRequest} from '../models/DeleteRequest';
-import type {SolutionAddRequest} from '../models/SolutionAddRequest';
-import type {SolutionQueryRequest} from '../models/SolutionQueryRequest';
-import type {SolutionUpdateRequest} from '../models/SolutionUpdateRequest';
-import type {CancelablePromise} from '../core/CancelablePromise';
-import {OpenAPI} from '../core/OpenAPI';
-import {request as __request} from '../core/request';
-
+import type { BaseResponseBoolean } from '../models/BaseResponseBoolean';
+import type { BaseResponseLong } from '../models/BaseResponseLong';
+import type { BaseResponsePageSolutionVO } from '../models/BaseResponsePageSolutionVO';
+import type { BaseResponseSolutionVO } from '../models/BaseResponseSolutionVO';
+import type { DeleteRequest } from '../models/DeleteRequest';
+import type { SolutionAddRequest } from '../models/SolutionAddRequest';
+import type { SolutionQueryRequest } from '../models/SolutionQueryRequest';
+import type { SolutionUpdateRequest } from '../models/SolutionUpdateRequest';
+import type { CancelablePromise } from '../core/CancelablePromise';
+import { OpenAPI } from '../core/OpenAPI';
+import { request as __request } from '../core/request';
 export class SolutionControllerService {
     /**
      * @param requestBody
@@ -30,23 +29,6 @@ export class SolutionControllerService {
             mediaType: 'application/json',
         });
     }
-
-    /**
-     * @param requestBody
-     * @returns BaseResponsePageSolutionVO OK
-     * @throws ApiError
-     */
-    public static listFavoriteSolutionVoByPage(
-        requestBody: SolutionQueryRequest,
-    ): CancelablePromise<BaseResponsePageSolutionVO> {
-        return __request(OpenAPI, {
-            method: 'POST',
-            url: '/solution/list/favorite/page/vo',
-            body: requestBody,
-            mediaType: 'application/json',
-        });
-    }
-
     /**
      * @param requestBody
      * @returns BaseResponseBoolean OK
@@ -62,7 +44,6 @@ export class SolutionControllerService {
             mediaType: 'application/json',
         });
     }
-
     /**
      * @param requestBody
      * @returns BaseResponseBoolean OK
@@ -78,7 +59,6 @@ export class SolutionControllerService {
             mediaType: 'application/json',
         });
     }
-
     /**
      * @param requestBody
      * @returns BaseResponseBoolean OK
@@ -94,7 +74,6 @@ export class SolutionControllerService {
             mediaType: 'application/json',
         });
     }
-
     /**
      * @param requestBody
      * @returns BaseResponsePageSolutionVO OK
@@ -110,7 +89,6 @@ export class SolutionControllerService {
             mediaType: 'application/json',
         });
     }
-
     /**
      * @param requestBody
      * @returns BaseResponsePageSolutionVO OK
@@ -126,7 +104,21 @@ export class SolutionControllerService {
             mediaType: 'application/json',
         });
     }
-
+    /**
+     * @param requestBody
+     * @returns BaseResponsePageSolutionVO OK
+     * @throws ApiError
+     */
+    public static listFavoriteSolutionVoByPage(
+        requestBody: SolutionQueryRequest,
+    ): CancelablePromise<BaseResponsePageSolutionVO> {
+        return __request(OpenAPI, {
+            method: 'POST',
+            url: '/solution/list/favorite/page/vo',
+            body: requestBody,
+            mediaType: 'application/json',
+        });
+    }
     /**
      * @param requestBody
      * @returns BaseResponseBoolean OK
@@ -142,7 +134,6 @@ export class SolutionControllerService {
             mediaType: 'application/json',
         });
     }
-
     /**
      * @param requestBody
      * @returns BaseResponseBoolean OK
@@ -158,7 +149,6 @@ export class SolutionControllerService {
             mediaType: 'application/json',
         });
     }
-
     /**
      * @param requestBody
      * @returns BaseResponseBoolean OK
@@ -174,7 +164,6 @@ export class SolutionControllerService {
             mediaType: 'application/json',
         });
     }
-
     /**
      * @param requestBody
      * @returns BaseResponseLong OK
@@ -190,7 +179,6 @@ export class SolutionControllerService {
             mediaType: 'application/json',
         });
     }
-
     /**
      * @param solutionId
      * @returns BaseResponseBoolean OK
@@ -207,7 +195,6 @@ export class SolutionControllerService {
             },
         });
     }
-
     /**
      * @param id
      * @returns BaseResponseSolutionVO OK
@@ -224,7 +211,6 @@ export class SolutionControllerService {
             },
         });
     }
-
     /**
      * @param solutionId
      * @returns BaseResponseBoolean OK
