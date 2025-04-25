@@ -25,10 +25,10 @@
 
 <script lang="ts" setup>
 import {reactive, ref} from "vue";
-import {UserControllerService, UserLoginRequest, UserRegisterRequest} from "../../generated";
 import message from "@arco-design/web-vue/es/message";
 import {useRouter} from "vue-router";
 import {useStore} from "vuex";
+import {UserControllerService, UserRegisterRequest} from "../../generated/user";
 
 const emitter = defineEmits(['close-modal', 'change-tab']);
 const registerForm = reactive<UserRegisterRequest>({
@@ -50,7 +50,7 @@ const isLoading = ref(false);
  */
 const handleRegisterSubmit = async () => {
   isLoading.value = true;
-  const res = await UserControllerService.userRegisterUsingPost(registerForm);
+  const res = await UserControllerService.userRegister(registerForm);
   isLoading.value = false;
   console.log(res)
   // 登录成功，跳转到主页

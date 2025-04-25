@@ -27,30 +27,36 @@
     </a-modal>
     <a-divider/>
     <a-spin :loading="listLoading" tip="题解加载中..." class="w-full">
-      <div v-if="dataList.length != 0"
-           class="mt-4 solution-item px-4 py-4 text-gray-600 border-b border-solid border-gray-200 border-x-0 border-t-0"
-           v-for="item of dataList" :key="item?.id">
-        <div class=" gap-6 flex items-center">
-          <MyAvatar :url="item.userVO?.userAvatar" class="cursor-pointer"/>
-          <div class="flex flex-col items-center">
-            <span class="text-lg">{{ item.upvoteCount }}</span>
-            <span class="text-xs">支持</span>
+      <div v-if="dataList.length != 0">
+        <div
+            class="mt-4 solution-item px-4 py-4 text-gray-600 border-b border-solid border-gray-200 border-x-0 border-t-0"
+            v-for="item of dataList" :key="item?.id">
+          <div class=" gap-6 flex items-center">
+            <MyAvatar :url="item.userVO?.userAvatar" class="cursor-pointer"/>
+            <div class="flex flex-col items-center">
+              <span class="text-lg">{{ item.upvoteCount }}</span>
+              <span class="text-xs">支持</span>
+            </div>
+            <div class="flex flex-col items-center">
+              <span class="text-lg">{{ item.viewCount }}</span>
+              <span class="text-xs">浏览</span>
+            </div>
+            <div class="text-xl sys-text"
+                 @click="handleClickItem(item.id!)">
+              {{ item.title }}
+            </div>
           </div>
-          <div class="flex flex-col items-center">
-            <span class="text-lg">{{ item.viewCount }}</span>
-            <span class="text-xs">浏览</span>
-          </div>
-          <div class="text-xl sys-text"
-               @click="handleClickItem(item.id!)">
-            {{ item.title }}
-          </div>
-        </div>
-        <div class="flex justify-end items-center">
+          <div class="flex justify-end items-center">
         <span
             class="sys-text">{{
             item.userVO?.userName
           }}&nbsp;</span>
-          <span> 创建于 {{ dayjs(item.createTime).format("YYYY-MM-DD HH:mm") }}</span>
+            <span> 创建于 {{ dayjs(item.createTime).format("YYYY-MM-DD HH:mm") }}</span>
+          </div>
+        </div>
+        <div class="p-2 flex justify-end">
+          <a-pagination :total="total" v-model:current="searchParams.current"
+                        v-model:page-size="searchParams.pageSize"/>
         </div>
       </div>
       <a-empty v-else description="暂无题解，快来发表第一篇吧！"/>
@@ -199,23 +205,31 @@
           </Transition>
         </a-comment>
       </a-comment>
+      <div class="flex justify-end">
+        <a-pagination class="mt-2" :total="commentTotal" v-model:current="commentSearchParams.current"
+                      v-model:page-size="commentSearchParams.pageSize"/>
+      </div>
     </a-card>
+
   </div>
 </template>
 
 <script setup lang="ts">
-import {editor} from "monaco-editor";
-import {defineProps, onMounted, reactive, ref, watch, withDefaults} from "vue";
-import {CommentVO, QuestionQueryRequest, SolutionControllerService, SolutionVO} from "../../generated";
+import {defineProps, reactive, ref, watch, withDefaults} from "vue";
 import message from "@arco-design/web-vue/es/message";
 import MyAvatar from "@/components/MyAvatar.vue";
 import dayjs from "dayjs";
 import MdViewer from "@/components/MdViewer.vue";
 import MdEditor from "@/components/MdEditor.vue";
-import {CommentControllerService} from "../../generated/services/CommentControllerService";
 import {useStore} from "vuex";
 import {checkLogin} from "@/utils/checkLogin";
-import {list} from "postcss";
+import {
+  CommentControllerService,
+  CommentVO,
+  QuestionQueryRequest,
+  SolutionControllerService,
+  SolutionVO
+} from "../../generated/question";
 
 /**
  * 定义组件属性类型
@@ -264,7 +278,7 @@ const handleClick = () => {
 const handleOk = async () => {
   isLoading.value = true;
   console.log(form)
-  const res = await SolutionControllerService.addSolutionUsingPost(form);
+  const res = await SolutionControllerService.addSolution(form);
   if (res.code !== 0) {
     message.error('添加失败，' + res.message);
   } else {
@@ -280,7 +294,7 @@ const handleCancel = () => {
 }
 
 const handleDeleteComment = async (id: number) => {
-  const res = await CommentControllerService.deleteCommentUsingPost({id});
+  const res = await CommentControllerService.deleteComment({id});
   if (res.code === 0) {
     message.success("删除成功");
     await loadCommentRecords()
@@ -296,7 +310,7 @@ const handleDeleteComment = async (id: number) => {
  * @param replyUserId
  */
 const submitComment = async (commentableId?: number, replyUserId?: number, replyContent?: string) => {
-  const res = await CommentControllerService.addCommentUsingPost({
+  const res = await CommentControllerService.addComment({
     targetId: currentSolution.value?.id,
     commentableType: "solution",
     content: replyContent == '' || replyContent === undefined ? commentContent.value : replyContent,
@@ -314,15 +328,24 @@ const submitComment = async (commentableId?: number, replyUserId?: number, reply
   loadCommentRecords()
 }
 
-const searchParams = ref<QuestionQueryRequest>({
+const searchParams = reactive<QuestionQueryRequest>({
   pageSize: 10,
   current: 1,
 });
 
-const commentSearchParams = ref<QuestionQueryRequest>({
+const commentSearchParams = reactive<QuestionQueryRequest>({
   pageSize: 10,
   current: 1,
 });
+
+watch(searchParams, () => {
+  loadSolutionRecords();
+})
+
+watch(commentSearchParams, () => {
+  loadCommentRecords();
+})
+
 
 watch(
     () => props.tabValue,
@@ -339,16 +362,15 @@ watch(
  */
 const loadSolutionRecords = async () => {
   listLoading.value = true;
-  const res = await SolutionControllerService.listSolutionVoByPageUsingPost({
-    ...searchParams.value,
+  const res = await SolutionControllerService.listSolutionVoByPage({
+    ...searchParams,
     questionId: props.questionId,
     sortField: 'createTime',
     sortOrder: 'descend',
   });
-  console.log(res.data.records)
   if (res.code === 0) {
-    dataList.value = res.data.records;
-    total.value = parseInt(res.data.total);
+    dataList.value = res.data?.records!;
+    total.value = parseInt(res.data?.total!);
   } else {
     message.error('加载失败，' + res.message);
   }
@@ -359,8 +381,8 @@ const loadSolutionRecords = async () => {
  * 获取题解评论数据
  */
 const loadCommentRecords = async () => {
-  const res = await CommentControllerService.listCommentVoByPageUsingPost({
-    ...commentSearchParams.value,
+  const res = await CommentControllerService.listCommentVoByPage({
+    ...commentSearchParams,
     targetId: currentSolution.value?.id,
     sortField: 'createTime',
     sortOrder: 'descend',
@@ -388,7 +410,7 @@ const loadCommentRecords = async () => {
  */
 const handleClickItem = async (id: number) => {
   // 更新浏览量
-  await SolutionControllerService.updateViewCountUsingPost({id});
+  await SolutionControllerService.updateViewCount({id});
   store.state.user?.loginUser && await loadIsLiked(id);
   store.state.user?.loginUser && await loadIsFavorite(id)
   await loadItemData(id);
@@ -396,7 +418,7 @@ const handleClickItem = async (id: number) => {
 }
 
 const loadItemData = async (id: number) => {
-  const res = await SolutionControllerService.getSolutionVoByIdUsingGet(id);
+  const res = await SolutionControllerService.getSolutionVoById(id);
   if (res.code === 0) {
     currentSolution.value = res.data;
   } else {
@@ -411,7 +433,7 @@ const loadItemData = async (id: number) => {
  * @param id
  */
 const loadIsLiked = async (id: number) => {
-  const res = await SolutionControllerService.isLikedUsingGet(id);
+  const res = await SolutionControllerService.isLiked(id);
   isLiked.value = res.data!;
 }
 
@@ -420,37 +442,33 @@ const loadIsLiked = async (id: number) => {
  * @param id
  */
 const loadIsFavorite = async (id: number) => {
-  const res = await SolutionControllerService.isFavoriteUsingGet(id);
+  const res = await SolutionControllerService.isFavorite(id);
   isFavorite.value = res.data!;
 }
 
 const handleLike = async () => {
-  const res = await SolutionControllerService.likeUsingPost({id: currentSolution.value?.id});
+  const res = await SolutionControllerService.like({id: currentSolution.value?.id});
   await loadIsLiked(currentSolution.value?.id!)
   await loadItemData(currentSolution.value?.id!)
 }
 
 const handleUnLike = async () => {
-  const res = await SolutionControllerService.unlikeUsingPost({id: currentSolution.value?.id});
+  const res = await SolutionControllerService.unlike({id: currentSolution.value?.id});
   await loadIsLiked(currentSolution.value?.id!)
   await loadItemData(currentSolution.value?.id!)
 }
 
 const handleFavorite = async () => {
-  const res = await SolutionControllerService.addFavoriteUsingPost({id: currentSolution.value?.id});
+  const res = await SolutionControllerService.addFavorite({id: currentSolution.value?.id});
   await loadIsFavorite(currentSolution.value?.id!)
   await loadItemData(currentSolution.value?.id!)
 }
 
 const handleUnFavorite = async () => {
-  const res = await SolutionControllerService.unFavoriteUsingPost({id: currentSolution.value?.id});
+  const res = await SolutionControllerService.unFavorite({id: currentSolution.value?.id});
   await loadIsFavorite(currentSolution.value?.id!)
   await loadItemData(currentSolution.value?.id!)
 }
-
-onMounted(() => {
-  loadSolutionRecords();
-})
 
 </script>
 

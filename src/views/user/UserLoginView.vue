@@ -28,10 +28,10 @@
 
 <script setup lang="ts">
 import { reactive } from "vue";
-import { UserControllerService, UserLoginRequest } from "../../../generated";
 import message from "@arco-design/web-vue/es/message";
 import { useRouter } from "vue-router";
 import { useStore } from "vuex";
+import {UserControllerService, UserLoginRequest} from "../../../generated/user";
 
 /**
  * 表单信息
@@ -49,7 +49,7 @@ const store = useStore();
  * @param data
  */
 const handleSubmit = async () => {
-  const res = await UserControllerService.userLoginUsingPost(form);
+  const res = await UserControllerService.userLogin(form);
   // 登录成功，跳转到主页
   if (res.code === 0) {
     await store.dispatch("user/getLoginUser");

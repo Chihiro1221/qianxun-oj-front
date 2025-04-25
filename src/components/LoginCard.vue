@@ -22,10 +22,10 @@
 
 <script lang="ts" setup>
 import {reactive, ref} from "vue";
-import {UserControllerService, UserLoginRequest} from "../../generated";
 import message from "@arco-design/web-vue/es/message";
 import {useRouter} from "vue-router";
 import {useStore} from "vuex";
+import {UserControllerService, UserLoginRequest} from "../../generated/user";
 
 const emitter = defineEmits(['close-modal', 'change-tab']);
 const loginForm = reactive<UserLoginRequest>({
@@ -46,7 +46,7 @@ const isLoading = ref(false);
  */
 const handleLoginSubmit = async () => {
   isLoading.value = true;
-  const res = await UserControllerService.userLoginUsingPost(loginForm);
+  const res = await UserControllerService.userLogin(loginForm);
   isLoading.value = false;
   emitter('close-modal')
   // 登录成功，跳转到主页

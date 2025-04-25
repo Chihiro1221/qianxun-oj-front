@@ -1,6 +1,6 @@
 import {useStore} from "vuex";
-import {LoginUserVO} from "../../generated";
 import {ref} from "vue";
+import {LoginUserVO} from "../../generated/user";
 
 // 定义WebSocketClient类
 export class WebSocketClient {

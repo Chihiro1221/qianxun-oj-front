@@ -50,7 +50,7 @@
           <a-col :span="12">
             <div class="flex items-center gap-2">
               <span>作者：</span>
-              <MyAvatar :size="20" :url="store.state.user?.userAvatar"/>
+              <MyAvatar :size="20" :url="store.state.user?.loginUser?.userAvatar"/>
               <span>{{ loginUser.userName }}</span>
             </div>
           </a-col>
@@ -102,15 +102,19 @@
 </template>
 
 <script setup lang="ts">
-import {editor} from "monaco-editor";
 import {defineProps, ref, watch, withDefaults} from "vue";
-import {QuestionControllerService, QuestionQueryRequest} from "../../generated";
 import message from "@arco-design/web-vue/es/message";
 import MyAvatar from "@/components/MyAvatar.vue";
 import dayjs from "dayjs";
 import {useStore} from "vuex";
 import {statusColor} from "@/utils";
 import CodeReader from "@/components/CodeReader.vue";
+import {
+  QuestionControllerService,
+  QuestionQueryRequest,
+  QuestionSubmit,
+  QuestionSubmitVO
+} from "../../generated/question";
 
 interface Props {
   questionId: number | undefined;
@@ -152,7 +156,7 @@ const columns = [
     dataIndex: 'language',
   },
 ];
-const dataList = ref([]);
+const dataList = ref<QuestionSubmitVO[]>([]);
 const total = ref(0);
 const store = useStore();
 const loginUser = store.state.user.loginUser;
@@ -176,7 +180,7 @@ const isTableLoading = ref(false);
  */
 const loadSubmitRecords = async () => {
   isTableLoading.value = true;
-  const res = await QuestionControllerService.listQuestionSubmitByPageUsingPost({
+  const res = await QuestionControllerService.listQuestionSubmitByPage({
     ...searchParams.value,
     userId: store.state.user?.loginUser?.id,
     sortField: 'createTime',
@@ -184,8 +188,8 @@ const loadSubmitRecords = async () => {
     questionId: props.questionId,
   });
   if (res.code === 0) {
-    dataList.value = res.data.records;
-    total.value = parseInt(res.data.total);
+    dataList.value = res.data?.records!;
+    total.value = parseInt(res.data.total!);
   } else {
     message.error('加载失败，' + res.message);
   }
@@ -194,7 +198,7 @@ const loadSubmitRecords = async () => {
 
 const showSubmitItem = async (submitId: number) => {
   submitTabStatus.value = 'item';
-  const res = await QuestionControllerService.getQuestionSubmitVoByIdUsingGet(submitId);
+  const res = await QuestionControllerService.getQuestionSubmitVoById(submitId);
   if (res.code === 0) {
     currentSubmit.value = res.data;
     console.log(currentSubmit.value);

@@ -100,8 +100,8 @@
 <script setup lang="ts">
 import {useStore} from "vuex";
 import {computed, reactive, ref} from "vue";
-import {UserControllerService} from "../../../generated";
 import message from "@arco-design/web-vue/es/message";
+import {UserControllerService} from "../../../generated/user";
 
 const store = useStore();
 const loginUser = computed(() => store.state.user?.loginUser)
@@ -121,7 +121,7 @@ const handleClick = () => {
 
 const handleOk = async () => {
   const {userPassword, userNewPassword, userNewPasswordConfirmation} = form;
-  const res = await UserControllerService.updateMyUserUsingPost({
+  const res = await UserControllerService.updateMyUser({
     userPassword, userNewPassword, userNewPasswordConfirmation
   });
   if (res.code === 0) {
@@ -147,7 +147,7 @@ const handleCancel = () => {
  */
 const handleSubmit = async (data) => {
   const {userName, userProfile} = form;
-  const res = await UserControllerService.updateMyUserUsingPost({
+  const res = await UserControllerService.updateMyUser({
     userName, userProfile
   });
   if (res.code === 0) {
@@ -165,7 +165,7 @@ const handleSubmit = async (data) => {
 const handleUploadSuccess = async (data: any) => {
   console.log(data.response.code)
   if (data.response.code === 0) {
-    const res = await UserControllerService.updateMyUserUsingPost({
+    const res = await UserControllerService.updateMyUser({
       userAvatar: data.response.data
     })
     if (res.code === 0) {

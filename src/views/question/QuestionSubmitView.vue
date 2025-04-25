@@ -45,18 +45,19 @@
 
 <script setup lang="ts">
 import {onMounted, ref, watchEffect} from "vue";
-import {
-  Question,
-  QuestionControllerService,
-  QuestionSubmitQueryRequest,
-} from "../../../generated";
 import message from "@arco-design/web-vue/es/message";
 import {useRouter} from "vue-router";
 import moment from "moment";
+import {
+  QuestionControllerService,
+  QuestionSubmitQueryRequest,
+  QuestionSubmitVO,
+  QuestionVO
+} from "../../../generated/question";
 
 const tableRef = ref();
 
-const dataList = ref([]);
+const dataList = ref<QuestionSubmitVO[]>([]);
 const total = ref(0);
 const searchParams = ref<QuestionSubmitQueryRequest>({
   questionId: undefined,
@@ -66,7 +67,7 @@ const searchParams = ref<QuestionSubmitQueryRequest>({
 });
 
 const loadData = async () => {
-  const res = await QuestionControllerService.listQuestionSubmitByPageUsingPost(
+  const res = await QuestionControllerService.listQuestionSubmitByPage(
       {
         ...searchParams.value,
         sortField: "createTime",
@@ -74,8 +75,8 @@ const loadData = async () => {
       }
   );
   if (res.code === 0) {
-    dataList.value = res.data.records;
-    total.value = res.data.total;
+    dataList.value = res.data?.records!;
+    total.value = res.data?.total!;
   } else {
     message.error("加载失败，" + res.message);
   }
@@ -140,7 +141,7 @@ const router = useRouter();
  * 跳转到做题页面
  * @param question
  */
-const toQuestionPage = (question: Question) => {
+const toQuestionPage = (question: QuestionVO) => {
   router.push({
     path: `/view/question/${question.id}`,
   });

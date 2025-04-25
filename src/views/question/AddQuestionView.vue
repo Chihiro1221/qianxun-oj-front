@@ -104,9 +104,9 @@
 <script setup lang="ts">
 import {onMounted, ref} from "vue";
 import MdEditor from "@/components/MdEditor.vue";
-import {QuestionControllerService} from "../../../generated";
 import message from "@arco-design/web-vue/es/message";
 import {useRoute, useRouter} from "vue-router";
+import {QuestionControllerService} from "../../../generated/question";
 
 const route = useRoute();
 const router = useRouter();
@@ -139,7 +139,7 @@ const loadData = async () => {
   if (!id) {
     return;
   }
-  const res = await QuestionControllerService.getQuestionByIdUsingGet(
+  const res = await QuestionControllerService.getQuestionById1(
       id as any
   );
   if (res.code === 0) {
@@ -182,7 +182,7 @@ const doSubmit = async () => {
   console.log(form.value);
   // 区分更新还是创建
   if (updatePage) {
-    const res = await QuestionControllerService.updateQuestionUsingPost(
+    const res = await QuestionControllerService.updateQuestion(
         form.value
     );
     if (res.code === 0) {
@@ -192,7 +192,7 @@ const doSubmit = async () => {
       message.error("更新失败，" + res.message);
     }
   } else {
-    const res = await QuestionControllerService.addQuestionUsingPost(
+    const res = await QuestionControllerService.addQuestion(
         form.value
     );
     if (res.code === 0) {

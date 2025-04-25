@@ -54,24 +54,15 @@
         </a-col>
       </a-row>
     </a-card>
-<!--    <a-spin v-else :loading="true" tip="loading question..." class="w-full">-->
-<!--      <div class="m-[500px]"></div>-->
-<!--    </a-spin>-->
   </div>
 </template>
 
 <script setup lang="ts">
-import { editor } from 'monaco-editor';
-import { defineProps, ref, watch, withDefaults } from 'vue';
-import { QuestionControllerService, QuestionQueryRequest, QuestionVO } from '../../generated';
-import message from '@arco-design/web-vue/es/message';
-import MyAvatar from '@/components/MyAvatar.vue';
-import dayjs from 'dayjs';
-import { useStore } from 'vuex';
-import { convertKBToMB, statusColor } from '@/utils';
-import CodeReader from '@/components/CodeReader.vue';
+import {defineProps, withDefaults} from 'vue';
+import {convertKBToMB} from '@/utils';
 import MdViewer from '@/components/MdViewer.vue';
 import Difficulty from './Difficulty.vue';
+import {QuestionVO} from "../../generated/question";
 
 interface Props {
   question: QuestionVO;
@@ -79,14 +70,6 @@ interface Props {
 }
 
 const props = withDefaults(defineProps<Props>(), {});
-// watch(
-//     () => props.tabValue,
-//     () => {
-//       if (props.tabValue === 'question') {
-//         loadSubmitRecords();
-//       }
-//     }
-// );
 </script>
 
 <style scoped></style>

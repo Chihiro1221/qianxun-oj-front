@@ -32,6 +32,7 @@
             </span>
             <template #content>
               <a-doption @click="$router.push({path:'/user/profile'})">个人中心</a-doption>
+              <a-doption @click="$router.push({path:'/user/space'})">我的空间</a-doption>
               <a-doption @click="handleLogout">退出登录</a-doption>
             </template>
           </a-dropdown>
@@ -63,11 +64,11 @@ import {useStore} from "vuex";
 import checkAccess from "@/access/checkAccess";
 import ACCESS_ENUM from "@/access/accessEnum";
 import LoginCard from "@/components/LoginCard.vue";
-import {UserControllerService} from "../../generated";
 import message from "@arco-design/web-vue/es/message";
 import RegisterCard from "@/components/RegisterCard.vue";
 import {wsClient} from "@/utils/webSocketClient";
 import MyAvatar from "@/components/MyAvatar.vue";
+import {UserControllerService} from "../../generated/user";
 
 
 const router = useRouter();
@@ -104,7 +105,7 @@ router.afterEach((to, from, failure) => {
 
 const handleLogout = async () => {
   // const wsClient = useSocket(store.state.user.loginUser);
-  await UserControllerService.userLogoutUsingPost();
+  await UserControllerService.userLogout();
   await store.commit("user/updateUser", null);
   wsClient.value?.close();
   router.push({

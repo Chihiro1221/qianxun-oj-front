@@ -54,20 +54,17 @@
 
 <script setup lang="ts">
 import {onMounted, ref, watchEffect} from "vue";
-import {
-  Page_Question_,
-  Question,
-  QuestionControllerService,
-} from "../../../generated";
 import message from "@arco-design/web-vue/es/message";
 import * as querystring from "querystring";
 import {useRouter} from "vue-router";
 import dayjs from "dayjs";
 import Difficulty from "@/components/Difficulty.vue";
+import {QuestionControllerService, QuestionVO} from "../../../generated/question";
+import Question from "@/components/Question.vue";
 
 const tableRef = ref();
 
-const dataList = ref([]);
+const dataList = ref<QuestionVO[]>([]);
 const total = ref(0);
 const searchParams = ref({
   title: "",
@@ -77,12 +74,12 @@ const searchParams = ref({
 });
 
 const loadData = async () => {
-  const res = await QuestionControllerService.listQuestionVoByPageUsingPost(
+  const res = await QuestionControllerService.listQuestionVoByPage(
       searchParams.value
   );
   if (res.code === 0) {
-    dataList.value = res.data.records;
-    total.value = res.data.total;
+    dataList.value = res.data?.records!;
+    total.value = res.data?.total!;
   } else {
     message.error("加载失败，" + res.message);
   }
@@ -106,12 +103,12 @@ watchEffect(() => {
   loadData();
 });
 
-/**
- * 页面加载时，请求数据
- */
-onMounted(() => {
-  loadData();
-});
+// /**
+//  * 页面加载时，请求数据
+//  */
+// onMounted(() => {
+//   loadData();
+// });
 
 // {id: "1", title: "A+ D", content: "新的题目内容", tags: "["二叉树"]", answer: "新的答案", submitNum: 0,…}
 
@@ -163,8 +160,8 @@ const onPageChange = (page: number) => {
   };
 };
 
-const doDelete = async (question: Question) => {
-  const res = await QuestionControllerService.deleteQuestionUsingPost({
+const doDelete = async (question: QuestionVO) => {
+  const res = await QuestionControllerService.deleteQuestion({
     id: question.id,
   });
   if (res.code === 0) {
@@ -177,7 +174,7 @@ const doDelete = async (question: Question) => {
 
 const router = useRouter();
 
-const doUpdate = (question: Question) => {
+const doUpdate = (question: QuestionVO) => {
   router.push({
     path: "/update/question",
     query: {

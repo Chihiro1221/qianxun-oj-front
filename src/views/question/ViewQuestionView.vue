@@ -134,7 +134,6 @@ import {computed, defineProps, onMounted, onUnmounted, reactive, ref, watch, wit
 import message from '@arco-design/web-vue/es/message';
 import CodeEditor from '@/components/CodeEditor.vue';
 import {wsClient} from '@/utils/webSocketClient';
-import {QuestionControllerService, QuestionSubmitAddRequest, QuestionVO} from '../../../generated';
 import {useStore} from 'vuex';
 import {checkLogin} from '@/utils/checkLogin';
 import {statusColor} from '../../utils';
@@ -142,6 +141,7 @@ import Solution from '@/components/Solution.vue';
 import Submit from '@/components/Submit.vue';
 import Question from '@/components/Question.vue';
 import Chat from '@/components/Chat.vue';
+import {QuestionControllerService, QuestionSubmitRequest, QuestionVO} from "../../../generated/question";
 
 interface Props {
   id: string;
@@ -228,7 +228,7 @@ const handleLanguageChange = (language: string) => {
 
 const loadData = async () => {
   loading.value = true;
-  const res = await QuestionControllerService.getQuestionVoByIdUsingGet(props.id as any);
+  const res = await QuestionControllerService.getQuestionVoById(props.id as any);
   if (res.code === 0) {
     question.value = res.data;
   } else {
@@ -237,7 +237,7 @@ const loadData = async () => {
   loading.value = false;
 };
 
-const form = ref<QuestionSubmitAddRequest>({
+const form = ref<QuestionSubmitRequest>({
   stdin: '',
   language: 'cpp',
   source_code: '',
