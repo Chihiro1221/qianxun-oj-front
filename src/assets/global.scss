@@ -1,0 +1,32 @@
+//@import url("./markdown.scss");
+
+.bytemd-body {
+  z-index: 1000 !important;
+}
+
+.markdown-body {
+  font-size: 15px;
+  color: #444;
+}
+
+@font-face {
+  font-family: 'JetBrains Mono';
+  src: url('@/assets/fonts/JetBrainsMono-Regular.ttf') format('truetype'); // 关键修正
+  font-weight: 400;
+  font-style: normal;
+  font-display: swap; // 优化字体加载体验
+}
+
+// 定义思源黑体可变字体（Variable Font）
+@font-face {
+  font-family: 'Source Han Sans SC';
+  src: url('@/assets/fonts/SourceHanSansSC-VF.otf') format('opentype');
+  font-weight: 100 900; // 可变字体支持多字重
+  font-stretch: 50% 200%; // 可变字体可拉伸范围
+  font-style: normal;
+  font-display: swap;
+}
+
+.sys-text {
+  @apply text-blue-500 hover:underline hover:text-blue-700 cursor-pointer;
+}

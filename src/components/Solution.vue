@@ -1,6 +1,6 @@
 <template>
   <div v-if="solutionTabStatus == 'list'"
-       class="solution-container border-b border-x-0 border-t-0 border-solid border-gray-200  ">
+       class="solution-container mt-4 border-b border-x-0 border-t-0 border-solid border-gray-200  ">
     <a-button type="primary" status="success" @click="handleClick" class="ml-4">
       <template #icon>
         <icon-edit/>

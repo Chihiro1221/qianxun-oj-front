@@ -1,127 +1,115 @@
 <template>
   <a-spin :loading="loading" id="viewQuestionView" tip="加载题目中...">
     <div class="relative">
-      <div id="q-con" class="shadow rounded overflow-hidden bg-white">
-        <div class="text-2xl px-4 py-6 text-[#4e5969]">{{ question?.title }}</div>
-        <a-tabs default-active-key="question" v-model:active-key="tabValue" size="large" @change="onTabChange"
-                type="card"
-                style="background: white">
+      <div id="q-con" class="shadow rounded overflow-hidden">
+        <div class="text-2xl px-4 py-6 text-[#4e5969] bg-white">{{ question?.title }}</div>
+        <a-tabs default-active-key="question" v-model:active-key="tabValue" size="large" @change="onTabChange" type="card">
           <a-tab-pane key="question">
             <template #title>
-              <icon-file/>
+              <icon-file />
               题目
             </template>
-            <Question :question="question"/>
-            <div class="shadow rounded overflow-hidden mt-4">
+            <Question :question="question" />
+            <div class="overflow-hidden">
               <a-form
-                  :model="form"
-                  layout="inline"
-                  class="flex items-center justify-end bg-[#f2f3f5] py-2 shadow"
-                  style="border-bottom: 1px solid #bdbdbd"
+                :model="form"
+                layout="inline"
+                class="flex items-center justify-end bg-[#f2f3f5] py-2 shadow"
+                style="border-bottom: 1px solid #bdbdbd"
               >
                 <a-form-item field="language" style="min-width: 240px; margin: 0px">
                   <a-select
-                      v-model="form.language"
-                      :style="{ width: '220px', 'background-color': 'white' }"
-                      placeholder="选择编程语言"
-                      class="mr-4"
-                      @change="handleLanguageChange"
+                    v-model="form.language"
+                    :style="{ width: '220px', 'background-color': 'white' }"
+                    placeholder="选择编程语言"
+                    class="mr-4"
+                    @change="handleLanguageChange"
                   >
-                    <a-option value="cpp">c++</a-option>
-                    <a-option>c</a-option>
-                    <a-option>java</a-option>
-                    <a-option>python</a-option>
-                    <a-option>python3</a-option>
-                    <a-option>javascript</a-option>
-                    <a-option>typescript</a-option>
-                    <a-option>ruby</a-option>
-                    <a-option>rust</a-option>
-                    <a-option>go</a-option>
+                    <a-option v-for="(lang, i) of Object.keys(languageMap)" :key="i" :value="languageMap[lang]">
+                      {{ lang }}
+                    </a-option>
                   </a-select>
                 </a-form-item>
                 <div class="options">
-                  <icon-sync @click="form.source_code = ''" size="28px"
-                             class="!text-[#95a5a6] mr-4 cursor-pointer hover:!text-blue-500"/>
-                  <icon-settings size="28px" class="!text-[#95a5a6] mr-4 cursor-pointer hover:!text-blue-500"/>
+                  <icon-sync @click="form.source_code = ''" size="28px" class="!text-[#95a5a6] mr-4 cursor-pointer hover:!text-blue-500" />
+                  <icon-settings size="28px" class="!text-[#95a5a6] mr-4 cursor-pointer hover:!text-blue-500" />
                 </div>
               </a-form>
               <div class="bg-white">
-                <CodeEditor :value="form.source_code as string" :language="form.language" :handle-change="changeCode"/>
-                <a-divider :size="0"/>
+                <CodeEditor :value="form.source_code as string" :language="form.language" :handle-change="changeCode" />
+                <a-divider :size="0" />
                 <div class="button-group px-2 pb-4">
                   <a-button shape="round" class="debug h-[40px] w-[120px]" @click="doDebug" :disabled="isDisabled">
                     <template #icon>
-                      <icon-play-circle-fill/>
+                      <icon-play-circle-fill />
                     </template>
                     <template #default>调试代码</template>
                   </a-button>
-                  <a-button shape="round" status="success" type="primary h-[40px] w-[120px]" @click="doSubmit"
-                            :disabled="isDisabled">
+                  <a-button shape="round" status="success" type="primary h-[40px] w-[120px]" @click="doSubmit" :disabled="isDisabled">
                     <template #icon>
-                      <icon-upload/>
+                      <icon-upload />
                     </template>
                     <template #default>提交答案</template>
                   </a-button>
                 </div>
               </div>
-              <a-card v-show="menuStatus !== 'code'" :class="['mt-2']">
-                <template #title>
-                  <div class="flex text-lg items-center">
-                    <div>代码提交状态：</div>
-                    <span
-                        :class="['running mr-2', statusColor[finishedStatus] ? statusColor[finishedStatus] : 'text-red-700']">{{
-                        finishedStatus
-                      }}</span>
-                    <icon-refresh
-                        v-if="['Uploading', 'Judging', 'Running', 'Pending'].includes(finishedStatus)"
-                        :style="{ fontSize: '24px', color: 'rgb(74, 148, 209)' }"
-                        spin
-                    />
-                  </div>
-                </template>
-                <template #extra>
-                  <icon-close
-                      style="color: black"
-                      class="cursor-pointer opacity-20 hover:opacity-100 font-bold"
-                      size="18px"
-                      @click="menuStatus = 'code'"
-                  />
-                </template>
-                <div v-show="menuStatus === 'debug'" class="p-4">
-                  <div class="input">
-                    <div class="mb-2">输入</div>
-                    <a-textarea v-model="form.stdin" :disabled="isDisabled" auto-size/>
-                  </div>
-                  <div class="output mt-4">
-                    <div class="mb-2">输出</div>
-                    <a-textarea v-model="debugForm.stdout" disabled auto-size/>
-                  </div>
-                  <div v-show="debugForm.time" class="exec_time mt-2">运行时间：{{ debugForm.time }}ms</div>
-                </div>
-              </a-card>
             </div>
+            <a-card v-show="menuStatus !== 'code'" :class="['mt-2']">
+              <template #title>
+                <div class="flex text-lg items-center">
+                  <div>代码提交状态：</div>
+                  <span :class="['running mr-2', statusColor[finishedStatus] ? statusColor[finishedStatus] : 'text-red-700']">{{
+                    finishedStatus
+                  }}</span>
+                  <icon-refresh
+                    v-if="['Uploading', 'Judging', 'Running', 'Pending'].includes(finishedStatus)"
+                    :style="{ fontSize: '24px', color: 'rgb(74, 148, 209)' }"
+                    spin
+                  />
+                </div>
+              </template>
+              <template #extra>
+                <icon-close
+                  style="color: black"
+                  class="cursor-pointer opacity-20 hover:opacity-100 font-bold"
+                  size="18px"
+                  @click="menuStatus = 'code'"
+                />
+              </template>
+              <div v-show="menuStatus === 'debug'" class="p-4">
+                <div class="input">
+                  <div class="mb-2">输入</div>
+                  <a-textarea v-model="form.stdin" :disabled="isDisabled" auto-size />
+                </div>
+                <div class="output mt-4">
+                  <div class="mb-2">输出</div>
+                  <a-textarea v-model="debugForm.stdout" disabled auto-size />
+                </div>
+                <div v-show="debugForm.time" class="exec_time mt-2">运行时间：{{ debugForm.time }}ms</div>
+              </div>
+            </a-card>
           </a-tab-pane>
-          <a-tab-pane v-if="loginUser" key="submit-records">
+          <a-tab-pane class="bg-white" v-if="loginUser" key="submit-records">
             <template #title>
-              <icon-unordered-list/>
+              <icon-unordered-list />
               提交记录
             </template>
-            <Submit :question-id="question?.id!" :tab-value="tabValue"/>
+            <Submit :question-id="question?.id!" :tab-value="tabValue" />
           </a-tab-pane>
-          <a-tab-pane key="solution-records">
+          <a-tab-pane class="bg-white" key="solution-records">
             <template #title>
-              <icon-code/>
+              <icon-code />
               题解
             </template>
-            <Solution :question-id="question?.id" :tab-value="tabValue" :solution-id="currentSolutionId"/>
+            <Solution :question-id="question?.id" :tab-value="tabValue" :solution-id="currentSolutionId" />
           </a-tab-pane>
-          <a-tab-pane key="ai">
+          <a-tab-pane class="bg-white" key="ai">
             <template #title>
-              <icon-robot/>
+              <icon-robot />
               问AI
             </template>
             <div class="py-4 px-40">
-              <Chat v-if="question?.id" :question-id="question?.id"/>
+              <Chat v-if="question?.id" :question-id="question?.id" />
             </div>
           </a-tab-pane>
         </a-tabs>
@@ -131,19 +119,20 @@
 </template>
 
 <script setup lang="ts">
-import {computed, defineProps, onMounted, onUnmounted, reactive, ref, watch, withDefaults} from 'vue';
+import { computed, defineProps, onMounted, onUnmounted, reactive, ref, watch, withDefaults } from 'vue';
 import message from '@arco-design/web-vue/es/message';
 import CodeEditor from '@/components/CodeEditor.vue';
-import {wsClient} from '@/utils/webSocketClient';
-import {useStore} from 'vuex';
-import {checkLogin} from '@/utils/checkLogin';
-import {statusColor} from '../../utils';
+import { wsClient } from '@/utils/webSocketClient';
+import { useStore } from 'vuex';
+import { checkLogin } from '@/utils/checkLogin';
+import { statusColor } from '../../utils';
 import Solution from '@/components/Solution.vue';
 import Submit from '@/components/Submit.vue';
 import Question from '@/components/Question.vue';
 import Chat from '@/components/Chat.vue';
-import {QuestionControllerService, QuestionSubmitRequest, QuestionVO} from "../../../generated/question";
-import {useRoute} from "vue-router";
+import { QuestionControllerService, QuestionSubmitRequest, QuestionVO } from '../../../generated/question';
+import { useRoute } from 'vue-router';
+import { languageMap } from '@/utils/common';
 
 interface Props {
   id: string;
@@ -154,7 +143,6 @@ const props = withDefaults(defineProps<Props>(), {
 });
 const tabValue = ref('question');
 const store = useStore();
-
 const debugForm = reactive({
   stdout: '',
   time: '',
@@ -163,38 +151,35 @@ const debugForm = reactive({
 
 const loginUser = computed(() => store.state.user?.loginUser);
 watch(
-    wsClient,
-    () => {
-      if (wsClient.value != null) {
-        wsClient.value.onMessageReceived = function (message: any) {
-          if (message.activity == 'heartbeat') return;
-          if (['Accepted', 'Finished'].includes(message.status)) {
-            form.value.stdin = message.stdin;
-            debugForm.stdout = message.stdout?.endsWith('\n') ? message.stdout.slice(0, -1) : message.stdout;
-            debugForm.time = new String(parseFloat(message.time) * 1000).toString();
-            // isTimeShow.value = true;
-            // finishedStatus.value = message.status;
-            // return;
-          }
-          if (message.compile_output && message.compile_output.length !== 0) {
-            menuStatus.value = 'debug';
-            debugForm.stdout = message.compile_output;
-          }
-          if (message.status === 'Wrong Answer') {
-            menuStatus.value = 'debug';
-            debugForm.stdout = message.user_stdout;
-          }
-          if (['Pending', 'Running'].includes(message.status)) {
-            isDisabled.value = true;
-          } else {
-            isDisabled.value = false;
-          }
+  wsClient,
+  () => {
+    if (wsClient.value != null) {
+      wsClient.value.onMessageReceived = function (message: any) {
+        if (message.activity == 'heartbeat') return;
+        if (['Accepted', 'Finished'].includes(message.status)) {
+          form.value.stdin = message.stdin;
+          debugForm.stdout = message.stdout?.endsWith('\n') ? message.stdout.slice(0, -1) : message.stdout;
+          debugForm.time = new String(parseFloat(message.time) * 1000).toString();
+        }
+        if (message.compile_output && message.compile_output.length !== 0) {
+          menuStatus.value = 'debug';
+          debugForm.stdout = message.compile_output;
+        }
+        if (message.status === 'Wrong Answer') {
+          menuStatus.value = 'debug';
+          debugForm.stdout = message.user_stdout;
+        }
+        if (['Pending', 'Running'].includes(message.status)) {
+          isDisabled.value = true;
+        } else {
+          isDisabled.value = false;
+        }
 
-          finishedStatus.value = message.status;
-        };
-      }
-    },
-    {deep: true, immediate: true}
+        finishedStatus.value = message.status;
+      };
+    }
+  },
+  { deep: true, immediate: true }
 );
 
 /**
@@ -210,11 +195,11 @@ const menuStatus = ref('code');
  */
 const finishedStatus = ref('');
 const question = ref<QuestionVO>();
-const loading = ref(false)
+const loading = ref(false);
 /**
  * 某个具体的题解id
  */
-const currentSolutionId = ref()
+const currentSolutionId = ref();
 const onTabChange = (key: string) => {
   tabValue.value = key;
 };
@@ -264,7 +249,7 @@ const doDebug = async () => {
   finishedStatus.value = 'Uploading';
   console.log('test:');
   console.log(wsClient.value);
-  wsClient.value?.sendMessage({...form.value, question_id: question.value.id, activity: 'problem_run_code'});
+  wsClient.value?.sendMessage({ ...form.value, question_id: question.value.id, activity: 'problem_run_code' });
 };
 
 /**
@@ -279,17 +264,17 @@ const doSubmit = async () => {
   isDisabled.value = true;
   menuStatus.value = 'submit';
   finishedStatus.value = 'Uploading';
-  wsClient.value?.sendMessage({...form.value, question_id: question.value.id, activity: 'problem_submit_code'});
+  wsClient.value?.sendMessage({ ...form.value, question_id: question.value.id, activity: 'problem_submit_code' });
 };
 
 const handleBeforeUnload = () => {
   // 执行清理工作
-  const settings = {language: form.value.language};
+  const settings = { language: form.value.language };
   localStorage.setItem(`${question.value?.id}-settings`, JSON.stringify(settings));
   localStorage.setItem(`${question.value?.id}-${form.value.language}`, form.value.source_code!);
 };
 
-const route = useRoute()
+const route = useRoute();
 
 /**
  * 页面加载时，请求数据
@@ -308,10 +293,10 @@ onMounted(async () => {
     form.value.source_code = data;
   }
 
-  const {solutionId} = route.query
+  const { solutionId } = route.query;
   if (solutionId) {
-    tabValue.value = 'solution-records'
-    currentSolutionId.value = solutionId
+    tabValue.value = 'solution-records';
+    currentSolutionId.value = solutionId;
   }
 });
 onUnmounted(() => {
@@ -346,5 +331,14 @@ const changeCode = (value: string) => {
 
 .debug {
   margin-right: 20px;
+}
+
+::v-deep(.arco-tabs-content) {
+  padding-top: 0px;
+  border: 0px solid #000000 !important;
+}
+
+::v-deep(.arco-tabs-nav-top) {
+  @apply bg-white;
 }
 </style>

@@ -3,12 +3,15 @@
 </template>
 
 <script setup lang="ts">
-import gfm from "@bytemd/plugin-gfm";
-import highlight from "@bytemd/plugin-highlight";
-import {Editor, Viewer} from "@bytemd/vue-next";
-import { withDefaults, defineProps } from "vue";
-import math from "@bytemd/plugin-math";
-import breaks from '@bytemd/plugin-breaks'
+import gfm from '@bytemd/plugin-gfm';
+import highlight from '@bytemd/plugin-highlight';
+import { Viewer } from '@bytemd/vue-next';
+import { defineProps, withDefaults } from 'vue';
+import math from '@bytemd/plugin-math';
+import breaks from '@bytemd/plugin-breaks';
+import copyCode from 'bytemd-plugin-copy-code';
+import 'bytemd-plugin-copy-code/dist/style/index.css';
+import gemoji from '@bytemd/plugin-gemoji';
 
 /**
  * 定义组件属性类型
@@ -21,7 +24,16 @@ const plugins = [
   gfm(),
   highlight(),
   math(),
-    breaks()
+  breaks(),
+  copyCode({
+    copySuccess: text => {
+      console.log('复制成功');
+    },
+    copyError: err => {},
+    copyRight: '',
+  }),
+  // mediumZoom(),
+  gemoji(),
 
   // Add more plugins here
 ];
@@ -30,8 +42,8 @@ const plugins = [
  * 给组件指定初始值
  */
 const props = withDefaults(defineProps<Props>(), {
-  value: () => "",
+  value: () => '',
 });
 </script>
 
-<style></style>
+<style scoped lang="scss"></style>

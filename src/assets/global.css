@@ -1,8 +1,0 @@
-.bytemd-body {
-  z-index: 1000! important;
-
-}
-
-.sys-text{
-  @apply text-blue-500 hover:underline hover:text-blue-700 cursor-pointer;
-}

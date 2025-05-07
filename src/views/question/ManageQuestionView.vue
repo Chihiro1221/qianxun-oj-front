@@ -12,6 +12,7 @@
       </a-form-item>
     </a-form>
     <a-table
+        class="bg-white pb-2"
         :ref="tableRef"
         :columns="columns"
         stripe
@@ -53,14 +54,12 @@
 </template>
 
 <script setup lang="ts">
-import {onMounted, ref, watchEffect} from "vue";
+import {ref, watchEffect} from "vue";
 import message from "@arco-design/web-vue/es/message";
-import * as querystring from "querystring";
 import {useRouter} from "vue-router";
 import dayjs from "dayjs";
 import Difficulty from "@/components/Difficulty.vue";
 import {QuestionControllerService, QuestionVO} from "../../../generated/question";
-import Question from "@/components/Question.vue";
 
 const tableRef = ref();
 

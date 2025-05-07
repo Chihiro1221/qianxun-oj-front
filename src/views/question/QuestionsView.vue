@@ -13,6 +13,7 @@
     </a-form>
     <a-divider size="0"/>
     <a-table
+        class="bg-white pb-2"
         :ref="tableRef"
         :loading="isLoading"
         :columns="columns"
